@@ -11,16 +11,21 @@ version: 1.0.0b1
 
 import os, re, string, logging, logging.config
 import const
-from cStringIO import StringIO 
+from cStringIO import StringIO
 from optparse import OptionParser
 from pygments import highlight
 from pygments.lexers import JavascriptLexer
 from pygments.formatters import HtmlFormatter
+from pkg_resources import resource_filename
 
 try:
     logging.config.fileConfig(os.path.join(sys.path[0], const.LOGCONFIG))
 except:
-    pass
+    try:
+        logging.config.fileConfig(resource_filename(__name__, const.LOGCONFIG))
+    except:
+        pass
+
 
 log = logging.getLogger('yuidoc.highlight')
 
@@ -42,7 +47,7 @@ class DocHighlighter(object):
         def highlightString(src):
             try:
                 return highlight(src, JavascriptLexer(), HtmlFormatter())
-            except: 
+            except:
                 return "File could not be highlighted"
 
         def highlightFile(path, file):
@@ -78,7 +83,7 @@ class DocHighlighter(object):
 
         log.info("-------------------------------------------------------")
 
-        for i in inputdirs: 
+        for i in inputdirs:
             highlightDir(os.path.abspath(i))
 
 
@@ -96,12 +101,12 @@ def main():
                           help="The extension to append to the output file" )
     (opts, inputdirs) = optparser.parse_args()
     if len(inputdirs) > 0:
-        docparser = DocHighlighter( inputdirs, 
-                            opts.outputdir, 
+        docparser = DocHighlighter( inputdirs,
+                            opts.outputdir,
                             opts.ext,
                             opts.newext )
     else:
         optparser.error("Incorrect number of arguments")
-           
+
 if __name__ == '__main__':
     main()

@@ -9,17 +9,22 @@ http://developer.yahoo.net/yui/license.html
 version: 1.0.0b1
 '''
 
-''' A class to parse Javadoc style comments out of javascript to document 
-    an API. It is designed to parse one module at a time ''' 
+''' A class to parse Javadoc style comments out of javascript to document
+    an API. It is designed to parse one module at a time '''
 import os, re, simplejson, string, sys, pprint, logging, logging.config
 import const
-from cStringIO import StringIO 
+from cStringIO import StringIO
 from optparse import OptionParser
+from pkg_resources import resource_filename
 
 try:
     logging.config.fileConfig(os.path.join(sys.path[0], const.LOGCONFIG))
 except:
-    pass
+    try:
+        logging.config.fileConfig(resource_filename(__name__, const.LOGCONFIG))
+    except:
+        pass
+
 
 log = logging.getLogger('yuidoc.parse')
 
@@ -68,7 +73,7 @@ class DocParser(object):
             return dircontent
 
         # An array containing each comment block
-        
+
         # the remainder of the file with the comment blocks removed
         # self.stripped = ""
 
@@ -93,10 +98,10 @@ class DocParser(object):
             majorVersion = 3
 
         # Dictionary of parsed data
-        self.data = { 
-            const.VERSION: version, 
-            const.MAJOR_VERSION: majorVersion, 
-            const.CLASS_MAP: {}, 
+        self.data = {
+            const.VERSION: version,
+            const.MAJOR_VERSION: majorVersion,
+            const.CLASS_MAP: {},
             const.MODULES: {} }
 
         self.inputdirs = inputdirs
@@ -112,7 +117,7 @@ class DocParser(object):
 
         log.info("-------------------------------------------------------")
 
-        for i in inputdirs: 
+        for i in inputdirs:
             self.currentClass     = ""
             self.currentNamespace = ""
             self.currentModule    = ""
@@ -127,7 +132,7 @@ class DocParser(object):
 
             for match in self.matches:
                 self.parse(self.tokenize(match))
-            
+
 
         out = open(os.path.join(self.outputdir, outputfile), "w")
 
@@ -143,24 +148,24 @@ class DocParser(object):
             #shortName = shortName.replace(i + ".", "")
         longName  = namespace + "." + shortName
         return shortName, longName
-        
+
     # extract string literals in case they contain the documentation pattern
     literals_pat = re.compile(r'(\'.*?(?<=[^\\])\')|(\".*?(?<=[^\\])\")')
 
-    # extract regex literals in case they contain 
+    # extract regex literals in case they contain
     #regex_pat = re.compile(r'(\/.*?(?<=[^\\])\/)')
     #regex_pat = re.compile(r'(\/[^\s\/\*][^\n]*?(?<=[^\\])\/)')
     regex_pat = re.compile(r'(\/[^\s\/\*][^\n]*\/)')
-    
+
     # the token we will use to restore the string literals
     replaceToken = '~~~%s~~~'
-    
+
     # the pattern to restore the string literals
     restore_pat  = re.compile('~~~(\d+)~~~')
-    
+
     # the pattern for extracting a documentation block and the next line
     docBlock_pat = re.compile('(/\*\*)(.*?)(\*/)([\s\n]*[^\/\n]*)?|(".*?")', re.S)
-    
+
     # after extracting the comment, fix it up (remove *s and leading spaces)
     # blockFilter_pat = re.compile('^\s*\*', re.M)
     blockFilter_pat = re.compile('^[\s|\*|\n]*', re.M)
@@ -197,7 +202,7 @@ class DocParser(object):
             # log.info("\n\n%s: %s\n" %("extracted", unicode(mo.groups())))
             literals.append(mo.group())
             return self.replaceToken % (len(literals) - 1)
-    
+
         # restores string literals
         def restore_sub(mo):
             # log.info("\n\n%s: %s\n" %("restore", unicode(literals[int(mo.group(1))])))
@@ -211,7 +216,7 @@ class DocParser(object):
                 type = const.FUNCTION
 
             self.guessedtype = type
-            self.guessedname = mo.group(2) 
+            self.guessedname = mo.group(2)
 
         # extracts the comment blocks
         def match_sub(match):
@@ -257,10 +262,10 @@ class DocParser(object):
         script = self.literals_pat.sub(insertToken_sub, script)
 
         # log.info("\n\n%s:\n\n%s\n" %("after string extraction", unicode(script)))
-    
+
         # extract comment blocks
         self.docBlock_pat.sub(match_sub, script)
-        
+
         return script
 
     # Tokenize a single documentation block
@@ -322,17 +327,17 @@ class DocParser(object):
                         description = mo.group(2)
                         description.encode('utf-8', 'xmlcharrefreplace')
 
-                        dict[desttag].append({  
+                        dict[desttag].append({
                                 const.NAME:        name,
-                                const.TYPE:        type, 
-                                const.DESCRIPTION: description 
+                                const.TYPE:        type,
+                                const.DESCRIPTION: description
                             })
                     else:
                         log.error("Error, could not parse param -- %s, %s --" %(type, description))
 
                 tokenMap.pop(srctag)
-            return dict 
- 
+            return dict
+
         def parseReturn(tokenMap, dict):
             if const.RETURN in tokenMap:
                 ret = tokenMap[const.RETURN][0]
@@ -365,14 +370,14 @@ class DocParser(object):
                 shortName = longName = name
             c = { const.SHORTNAME: shortName, const.NAME: longName, const.NAMESPACE: self.currentNamespace }
             self.currentClass = longName
-               
+
             if longName in self.data[const.CLASS_MAP]:
                 # print "WARNING: %s - Class %s was redefined" %(tokens, longName)
                 log.warn("WARNING: Class %s was redefined" %(longName))
             else:
                 self.data[const.CLASS_MAP][longName] = c
 
-            return shortName, longName 
+            return shortName, longName
 
         token = next()
         tokenMap = {}
@@ -408,9 +413,9 @@ it was empty" % token
 
                 tokenMap[token].append(desc)
 
-                # There are key pieces of info we need to have before we 
+                # There are key pieces of info we need to have before we
                 # can properly set up the documemtation for this block
-                if token == const.MODULE: 
+                if token == const.MODULE:
                     if desc:
 
                         # log.info("\nModule: " + desc)
@@ -431,7 +436,7 @@ it was empty" % token
             token = next()
 
         self.blocks.append(tokenMap);
-        
+
         if const.NAMESPACE in tokenMap:
             if not const.NAMESPACES in self.data: self.data[const.NAMESPACES] = []
             ns = tokenMap[const.NAMESPACE][0]
@@ -453,7 +458,7 @@ it was empty" % token
                     self.currentClass = longName
                 else:
                     defineClass(name)
-                    
+
                 tokenMap.pop(const.FOR)
 
 
@@ -474,7 +479,7 @@ it was empty" % token
                         tokenMap[const.PROPERTY] = tokenMap[const.GUESSEDNAME]
 
 
-        
+
         # The following tokens represent the core type of comment blocks that are
         # supported.  It is possible to have a comment block that does not fall into
         # one of these core categories.  It is assumed that these blocks are supplying
@@ -501,9 +506,9 @@ it was empty" % token
 
                 if const.DESCRIPTION in tokenMap:
                     target[const.SUBDATA][self.subModName][const.DESCRIPTION] = tokenMap[const.DESCRIPTION][0]
-                    
+
                 tokenMap.pop(const.SUBMODULE)
-                
+
             elif const.DESCRIPTION in tokenMap:
                 target[const.DESCRIPTION] = tokenMap[const.DESCRIPTION][0]
 
@@ -532,7 +537,7 @@ it was empty" % token
             target = { const.NAME: file_name, const.CLASS_LIST:[] }
             self.data[const.FILE_MAP][file_name] = target
 
- 
+
             if self.currentModule:
                 target[const.MODULE] = self.currentModule
                 self.data[const.MODULES][self.currentModule][const.FILE_LIST].append(file_name)
@@ -552,12 +557,12 @@ it was empty" % token
 
             if const.MODULE in tokenMap:
                 target, tokenMap = parseModule(tokenMap)
-            
+
             if self.subModName:
                 self.data[const.MODULES][self.currentModule][const.SUBDATA][self.subModName][const.NAME] = longName
                 if const.DESCRIPTION in tokenMap:
                     d = tokenMap[const.DESCRIPTION][0]
-                    try: 
+                    try:
                         encoded = unicode(d, 'utf-8', 'xmlcharrefreplace')
                         d = encoded
                     except: pass
@@ -574,9 +579,9 @@ it was empty" % token
                     target["innerClasses"] = []
 
                 target["innerClasses"].append(currentFor)
- 
+
             if self.currentModule:
-                
+
                 target[const.MODULE] = self.currentModule
                 self.data[const.MODULES][self.currentModule][const.CLASS_LIST].append(longName)
             else:
@@ -593,7 +598,7 @@ it was empty" % token
                 # shortName, longName = self.getClassName(tokenMap["extends"][0], self.currentNamespace)
                 longName = tokenMap["extends"][0]
                 target["superclass"] = longName
-                
+
             if "uses" in tokenMap:
                 target["uses"] = []
                 for i in tokenMap["uses"]:
@@ -607,9 +612,9 @@ it was empty" % token
 
             # self.data[const.CLASS_LIST].append(target)
             ############
-            
+
             tokenMap.pop(const.CLASS)
-                
+
         elif const.METHOD in tokenMap:
 
             method = tokenMap[const.METHOD][0]
@@ -626,7 +631,7 @@ it was empty" % token
             # log.info(" @method "  + method)
 
             if not const.METHODS in c: c[const.METHODS] = {}
-            
+
             if method in c[const.METHODS]:
                 log.warn("WARNING: method %s was redefined" %(method))
             else:
@@ -646,7 +651,7 @@ it was empty" % token
             event = tokenMap[const.EVENT][0]
 
             if not const.EVENTS in c: c[const.EVENTS] = {}
-            
+
             if event in c[const.EVENTS]:
                 log.warn("WARNING: event %s was redefined" %(event))
             else:
@@ -666,7 +671,7 @@ it was empty" % token
             property = tokenMap[const.PROPERTY][0]
 
             if not const.PROPERTIES in c: c[const.PROPERTIES] = {}
-            
+
             if property in c[const.PROPERTIES]:
                 log.warn("WARNING: Property %s was redefined" %(property))
             else:
@@ -677,7 +682,7 @@ it was empty" % token
             tokenMap.pop(const.PROPERTY)
 
         elif const.CONFIG in tokenMap or const.ATTRIBUTE in tokenMap:
-        
+
             if not self.currentClass:
                 log.error("Error: @config tag found before @class was found.\n****\n")
                 sys.exit()
@@ -690,7 +695,7 @@ it was empty" % token
 
 
             if not const.CONFIGS in c: c[const.CONFIGS] = {}
-            
+
             if config in c[const.CONFIGS]:
                 log.warn("WARNING: Property %s was redefined" %(config))
             else:
@@ -759,7 +764,7 @@ the attribute\'s value has changed.' %(config),
                     desc = "Fires before the value for the configuration attribute '" + config + "' changes." + " Return false to cancel the attribute change."
                     c[const.EVENTS][eventname] = getAttEvt(eventname, desc)
 
-                
+
             else:
                 tokenMap.pop(const.CONFIG)
 
@@ -796,7 +801,7 @@ the attribute\'s value has changed.' %(config),
 def main():
     optparser = OptionParser("usage: %prog [options] inputdir1 inputdir2 etc")
     optparser.set_defaults(outputdir="out",
-                           outputfile="parsed.json", 
+                           outputfile="parsed.json",
                            extension=".js",
                            version=""
                            )
@@ -814,14 +819,14 @@ def main():
                           help="The version of the project" )
     (opts, inputdirs) = optparser.parse_args()
     if len(inputdirs) > 0:
-        docparser = DocParser( inputdirs, 
-                            opts.outputdir, 
-                            opts.outputfile, 
+        docparser = DocParser( inputdirs,
+                            opts.outputdir,
+                            opts.outputfile,
                             opts.extension,
                             opts.version
                             )
     else:
         optparser.error("Incorrect number of arguments")
-           
+
 if __name__ == '__main__':
     main()

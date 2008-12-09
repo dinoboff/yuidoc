@@ -9,16 +9,20 @@ http://developer.yahoo.net/yui/license.html
 version: 1.0.0b1
 '''
 
-import yuidoc_parse, yuidoc_highlight, yuidoc_generate
+from pkg_resources import resource_filename
+import parse as yuidoc_parse
+import highlight as yuidoc_highlight
+import generate as yuidoc_generate
 
 def main():
     from optparse import OptionParser
     optparser = OptionParser("usage: %prog inputdir [options] inputdir")
-    optparser.set_defaults(extension=".js", 
-                           newext=".highlighted", 
-                           parseroutdir="/tmp", 
-                           outputdir="docs", 
-                           parserfile="parsed.json", 
+    optparser.set_defaults(extension=".js",
+                           newext=".highlighted",
+                           parseroutdir="/tmp",
+                           templatedir=resource_filename(__name__, 'template'),
+                           outputdir="docs",
+                           parserfile="parsed.json",
                            showprivate=False,
                            project="Yahoo! UI Library",
                            version="",
@@ -72,21 +76,21 @@ def main():
     (opts, inputdirs) = optparser.parse_args()
 
     if len(inputdirs) > 0:
-        docparser = yuidoc_parse.DocParser( inputdirs, 
-                            opts.parseroutdir, 
-                            opts.parserfile, 
+        docparser = yuidoc_parse.DocParser( inputdirs,
+                            opts.parseroutdir,
+                            opts.parserfile,
                             opts.extension,
                             opts.version,
                             opts.yuiversion
                             )
 
-        highlighter = yuidoc_highlight.DocHighlighter( [opts.parseroutdir], 
-                            opts.parseroutdir, 
+        highlighter = yuidoc_highlight.DocHighlighter( [opts.parseroutdir],
+                            opts.parseroutdir,
                             opts.extension,
                             opts.newext )
 
-        gen = yuidoc_generate.DocGenerator( opts.parseroutdir, 
-                               opts.parserfile, 
+        gen = yuidoc_generate.DocGenerator( opts.parseroutdir,
+                               opts.parserfile,
                                opts.outputdir,
                                opts.templatedir,
                                opts.newext,
@@ -99,7 +103,6 @@ def main():
         gen.process()
     else:
         optparser.error("Incorrect number of arguments")
-           
+
 if __name__ == '__main__':
     main()
-

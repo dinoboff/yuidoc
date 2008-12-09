@@ -9,27 +9,31 @@ http://developer.yahoo.net/yui/license.html
 version: 1.0.0b1
 '''
 
-''' Prints documentation with htmltmpl from the json data outputted by parser.py  ''' 
+''' Prints documentation with htmltmpl from the json data outputted by parser.py  '''
 import os, re, simplejson, shutil, logging, logging.config, time, datetime
 import const
-from cStringIO import StringIO 
+from cStringIO import StringIO
 from Cheetah.Template import Template
 from sets import Set
+from pkg_resources import resource_filename
 
 try:
     logging.config.fileConfig(os.path.join(sys.path[0], const.LOGCONFIG))
 except:
-    pass
+    try:
+        logging.config.fileConfig(resource_filename(__name__, const.LOGCONFIG))
+    except:
+        pass
 
 log = logging.getLogger('yuidoc.generate')
 
 
 class DocGenerator(object):
 
-    def __init__(self, inpath, datafile, outpath, templatepath, newext, showprivate=False, 
-                 projectname='Yahoo! UI Library', 
-                 version='', 
-                 projecturl='http://developer.yahoo.com/yui/', 
+    def __init__(self, inpath, datafile, outpath, templatepath, newext, showprivate=False,
+                 projectname='Yahoo! UI Library',
+                 version='',
+                 projecturl='http://developer.yahoo.com/yui/',
                  ydn=False):
 
         def _mkdir(newdir):
@@ -42,7 +46,7 @@ class DocGenerator(object):
                 if head and not os.path.isdir(head): _mkdir(head)
                 if tail: os.mkdir(newdir)
 
-       
+
         self.moduleprefix = const.MODULE_PREFIX
         self.inpath       = os.path.abspath(inpath)
 
@@ -74,7 +78,7 @@ class DocGenerator(object):
         self.projectname = projectname
         self.projecturl = projecturl
         self.ydn = ydn
-        self.version = version 
+        self.version = version
         self.modulename  = ""
         self.moduletitle  = ""
         self.moduledesc  = "Please supply a module block somewhere in your code"
@@ -84,7 +88,7 @@ class DocGenerator(object):
         self.modulenames.sort(lambda x,y: cmp(x.lower(), y.lower()))
 
         self.cleansedmodulename = self.cleanseStr(self.modulename)
-    
+
         self.classname   = ""
         self.filename    = ""
         self.pagetype    = ""
@@ -115,7 +119,7 @@ class DocGenerator(object):
             template.modulenames  = self.modulenames
             template.modulename   = self.modulename
             template.moduletitle = self.moduletitle
-            template.cleansedmodulename = self.cleansedmodulename 
+            template.cleansedmodulename = self.cleansedmodulename
             template.moduledesc   = self.moduledesc
 
             template.year         = datetime.date.today().strftime('%Y')
@@ -151,10 +155,10 @@ class DocGenerator(object):
             setattr(template, prop, val)
 
         def transferToDict(prop, dict1, dict2, default="", skipOverrideIfNoMatch=False):
-            val = "" 
+            val = ""
             if prop in dict1:
                 val = unicode(dict1[prop])
-                if not val: 
+                if not val:
                     val = default
             else:
                 if skipOverrideIfNoMatch:
@@ -256,7 +260,7 @@ class DocGenerator(object):
             return cmp(cx, cy)
 
         log.info("-------------------------------------------------------")
- 
+
         # copy the json file
         # jsonname = self.cleansedmodulename + ".json"
         jsonname = "raw.json"
@@ -289,7 +293,7 @@ class DocGenerator(object):
 
             if const.DESCRIPTION in m:
                 self.moduledesc   = m[const.DESCRIPTION]
-            else: 
+            else:
                 log.warn("Missing module description for " + mname)
                 self.moduledesc   = ''
 
@@ -303,12 +307,12 @@ class DocGenerator(object):
 
             transferToTemplate(const.BETA, m, t, "Beta")
             transferToTemplate(const.EXPERIMENTAL, m, t, "Experimental")
-            
+
             if len(m[const.SUBMODULES]) > 0:
                 strg = ', '.join(m[const.SUBMODULES])
             else:
                 strg = 'none'
-                
+
             transferToTemplate(const.SUBMODULES, m, t, strg)
             t.submodules = m[const.SUBMODULES]
 
@@ -418,7 +422,7 @@ class DocGenerator(object):
                                 if const.RETURN in method:
                                     transferToDict( const.TYPE,        method[const.RETURN], ret, "" )
                                     transferToDict( const.DESCRIPTION, method[const.RETURN], ret )
-                                    
+
                                 params = methoddata[const.PARAMS] = []
                                 if const.PARAMS in method:
                                     mp = method[const.PARAMS]
@@ -523,13 +527,13 @@ class DocGenerator(object):
                             if supercname in classes:
                                 superc = classes[supercname]
                                 getPropsFromSuperclass(superc, classes, inherited)
-                    
+
                     #Create the superclass chain and attach it to the classInfo Object
                     extends = {}
                     for i in inherited:
                         for a in inherited[i]:
                             extends[a] = a
-                    
+
                     inherited[const.SUPERCLASS] = extends
                     classInfo[const.EXTENDS] = inherited
                     classList.append(classInfo)
@@ -544,7 +548,7 @@ class DocGenerator(object):
                         if const.RETURN in constructor:
                             transferToDict( const.TYPE,        constructor[const.RETURN], ret, const.VOID )
                             transferToDict( const.DESCRIPTION, constructor[const.RETURN], ret )
-                            
+
                         params = constructordata[const.PARAMS] = []
                         if const.PARAMS in constructor:
                             cp = constructor[const.PARAMS]
@@ -565,7 +569,7 @@ class DocGenerator(object):
                     t.classList_raw = classList
                     t.classList = simplejson.dumps(classList)
                     self.write("%s.html" %(self.classname), t)
-        
+
             # clear out class name
             self.classname   = ""
             t.classname = ""
@@ -604,7 +608,7 @@ class DocGenerator(object):
                 propmap[url] = True
 
         allprops.sort(allprop_sort)
-                                            
+
         allprops_json =  simplejson.dumps(allprops)
         self.write("index.json",allprops_json)
 
@@ -657,9 +661,9 @@ class DocGenerator(object):
 def main():
     from optparse import OptionParser
     optparser = OptionParser("usage: %prog inputdir [options] inputdir")
-    optparser.set_defaults(outputdir="docs", 
-                           inputfile="parsed.json", 
-                           newext=".highlighted", 
+    optparser.set_defaults(outputdir="docs",
+                           inputfile="parsed.json",
+                           newext=".highlighted",
                            showprivate=False,
                            project="Yahoo! UI Library",
                            version=""
@@ -700,8 +704,8 @@ def main():
     (options, inputdirs) = optparser.parse_args()
 
     if len(inputdirs) > 0:
-        generator = DocGenerator( inputdirs[0], 
-                               options.inputfile, 
+        generator = DocGenerator( inputdirs[0],
+                               options.inputfile,
                                options.outputdir,
                                options.templatedir,
                                options.showprivate,
@@ -713,7 +717,6 @@ def main():
         generator.process()
     else:
         optparser.error("Incorrect number of arguments")
-           
+
 if __name__ == '__main__':
     main()
-

@@ -1,0 +1,10 @@
+include CHANGES
+include INSTALL
+include license.txt
+include README
+include TAGS
+recursive-include src *.txt
+recursive-include src *.py
+recursive-include src *.sh
+recursive-include src *.bat
+recursive-include src/yui/doc/template *

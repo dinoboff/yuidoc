@@ -1,0 +1,1 @@
+from yuidoc import main
