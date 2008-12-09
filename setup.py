@@ -14,7 +14,7 @@ install = read_file('INSTALL')
 tags = read_file('TAGS')
 changes = read_file('CHANGES')
 
-setup(name='yuidoc',
+setup(name='easy-yuidoc',
         version=version,
         description="yuidoc is a set of tools to generate the API documentation"
                     "for the JavaScript in the YUI library",
@@ -27,6 +27,7 @@ setup(name='yuidoc',
                 'Operating System :: Microsoft :: Windows',
                 'Operating System :: POSIX',
                 'Programming Language :: JavaScript',
+                'Programming Language :: Python :: 2.4',
                 'Programming Language :: Python :: 2.5',
                 'Topic :: Software Development :: Documentation'
                 ],

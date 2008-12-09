@@ -1,36 +1,35 @@
 
 General Notes:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------
 
---General Notes:
 
-* All comment blocks should have one, and only one, of the following tags: 
-  module, class, property, method.  If one is not supplied, the parser will
-  complain and the block will likely be skipped.
+*   All comment blocks should have one, and only one, of the following tags:
+    module, class, property, method.  If one is not supplied, the parser will
+    complain and the block will likely be skipped.
 
-* The four block types require a description.  This description should appear
-  as the first thing in your comment block.
+*   The four block types require a description.  This description should appear
+    as the first thing in your comment block::
 
-  /**
-   * My method description.  Like other pieces of your comment blocks, 
-   * this can span multiple lines.
-   * @method methodName
-   */
+        /**
+         * My method description.  Like other pieces of your comment blocks,
+         * this can span multiple lines.
+         * @method methodName
+         */
 
-  This might work too, but I have not tried it.. I like the other convention:
+    This might work too, but I have not tried it.. I like the other convention::
 
-  /**
-   * @method       methodName
-   * @description  My method description.  Like other pieces of your 
-   * comment blocks, this can span multiple lines.
-   */
+        /**
+         * @method       methodName
+         * @description  My method description.  Like other pieces of your
+         * comment blocks, this can span multiple lines.
+         */
 
-* It will warn about any tag that does not contain a description, with the
-  exception of the following: constructor, public, private, static
+*   It will warn about any tag that does not contain a description, with the
+    exception of the following: constructor, public, private, static
 
 
 Supported Tags:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------
 
 @module modulename
     Include one these blocks in one of your files for your util/widget. The
@@ -56,7 +55,7 @@ Supported Tags:
     similar to @property, but separates config items from normal properties
 
 @attribute configName
-    similar to @config, but also auto-generates the [event]Change and 
+    similar to @config, but also auto-generates the [event]Change and
     the before[Event]Change events
 
 @method methodName
@@ -75,19 +74,24 @@ Supported Tags:
 @final
     for constants (properties and read-only configs)
 
-@param {type} name description    -or-
-@param name {type} description
+@param {type} name description
     Supported in method blocks or class/constructor blocks.
 
+@param name {type} description
+    Same as ``@param {type} name description``
+
 @for ClassName
-    Used to define an inner class:
+    Used to define an inner class::
+
         /**
          * An inner class
          * @class foo
          * @for OuterClass
          */
+
     After the class is done, you need to inform the parser to start working on
-    the outer class again:
+    the outer class again::
+
         /**
          * Another method for the outer class
          * @method bar
@@ -104,11 +108,11 @@ Supported Tags:
     This is barely supported at this point
 
 @deprecated explaination
-    The explaination does not need to be provided, but the parser will warn if 
+    The explaination does not need to be provided, but the parser will warn if
     you don't.  Usually you'll want to say what to use instead
 
 @public
-    Allowed to exist as a singular tag, but does nothing.  Everthing is assumed 
+    Allowed to exist as a singular tag, but does nothing.  Everthing is assumed
     public unless marked private
 
 @private
@@ -131,5 +135,3 @@ Supported Tags:
 @uses YAHOO.namespace.ClassName [method1, method2]
     For classes that use YAHOO.augment
     The optional method/properties are not supported yet
-
-
