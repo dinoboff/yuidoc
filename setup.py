@@ -14,9 +14,10 @@ install = read_file('INSTALL')
 tags = read_file('TAGS')
 changes = read_file('CHANGES')
 
-setup(name='vanillafriends',
+setup(name='yuidoc',
         version=version,
-        description="Tools helping building extension for Vanilla (PHP forum)",
+        description="yuidoc is a set of tools to generate the API documentation"
+                    "for the JavaScript in the YUI library",
         long_description='\n\n'.join([readme, install, tags, changes]),
         classifiers=[
                 'Development Status :: 4 - Beta',
