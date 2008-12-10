@@ -11,7 +11,7 @@ REM source trees:
 REM      SET parser_in="c:\home\www\yahoo.dev\src\js c:\home\www\Event.dev\src"
 SET parser_in=c:\home\www\yahoo.dev\src\js
 
-REM The location to output the parser data.  This output is a file containing a 
+REM The location to output the parser data.  This output is a file containing a
 REM json string, and copies of the parsed files.
 SET parser_out=c:\home\www\docs\parser
 
@@ -28,5 +28,4 @@ SET version="1.0.0"
 REM The version of YUI the project uses.
 SET yuiversion="2"
 
-"%yuidoc_home%\bin\yuidoc.py" "%parser_in%" -p "%parser_out%" -o "%generator_out%" -t "%template%" -v %version% -Y %yuiversion%
-
+"yuidoc" "%parser_in%" -p "%parser_out%" -o "%generator_out%" -t "%template%" -v %version% -Y %yuiversion%

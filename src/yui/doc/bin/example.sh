@@ -8,7 +8,7 @@ yuidoc_home=~/www/yuidoc/yuidoc
 #     parser_in="%HOME/www/yui/src %HOME/www/event/src"
 parser_in="$HOME/src"
 
-# The location to output the parser data.  This output is a file containing a 
+# The location to output the parser data.  This output is a file containing a
 # json string, and copies of the parsed files.
 parser_out=~/www/docs/parser
 
@@ -29,4 +29,4 @@ yuiversion=2
 ##############################################################################
 # add -s to the end of the line to show items marked private
 
-$yuidoc_home/bin/yuidoc.py $parser_in -p $parser_out -o $generator_out -t $template -v $version -Y $yuiversion
+yuidoc $parser_in -p $parser_out -o $generator_out -t $template -v $version -Y $yuiversion
