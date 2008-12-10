@@ -45,7 +45,8 @@ setup(name='easy-yuidoc',
                         'yuidoc = yui.doc:main',
                         'yuidoc-generate = yui.doc.generate:main',
                         'yuidoc-highlight = yui.doc.highlight:main',
-                        'yuidoc-parse = yui.doc.parse:main'
+                        'yuidoc-parse = yui.doc.parse:main',
+                        'yuidoc-example = yui.doc.example:main'
                         ],
                 },
 )
