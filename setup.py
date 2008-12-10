@@ -43,6 +43,9 @@ setup(name='easy-yuidoc',
         entry_points={
                 'console_scripts': [
                         'yuidoc = yui.doc:main',
+                        'yuidoc-generate = yui.doc.generate:main',
+                        'yuidoc-highlight = yui.doc.highlight:main',
+                        'yuidoc-parse = yui.doc.parse:main'
                         ],
                 },
 )
